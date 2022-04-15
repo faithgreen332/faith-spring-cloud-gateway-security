@@ -43,12 +43,11 @@ public class LoginService {
         // TODO 断言密码不正确
         // 生成 token 返回
         String token = tokenService.createToken(tUser);
-        tokenService.cacheToken(token, tUser);
+        tokenService.cacheTokenWithExpire(token, tUser);
 
         Authentication authentication = TokenAuthenticationUtil.userNamePasswordAuthenticationToken(tUser);
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(authentication);
-        System.out.println("context:" + ReactiveSecurityContextHolder.getContext());
 
 //        ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext));
         ReactiveSecurityContextHolder.withAuthentication(authentication);

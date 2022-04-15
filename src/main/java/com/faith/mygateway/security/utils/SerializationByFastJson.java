@@ -91,4 +91,24 @@ public class SerializationByFastJson {
         }
         return JSONObject.parseObject(str.get(), type);
     }
+
+    public static String requestBodyToStr(Flux<DataBuffer> body) {
+        CountDownLatch downLatch = new CountDownLatch(1);
+        AtomicReference<String> str = new AtomicReference<>();
+        body.doOnComplete(downLatch::countDown).subscribe(dataBuffer -> {
+            System.out.println("readableByteCount:" + dataBuffer.readableByteCount());
+            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(bytes);
+            DataBufferUtils.release(dataBuffer);
+            str.set(new String(bytes, StandardCharsets.UTF_8));
+        });
+        //  使用 coutdownLatch去阻塞让subscirbe订阅完
+        try {
+            downLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("得到的胞体：" + str.get());
+        return JSONObject.toJSONString(str.get());
+    }
 }

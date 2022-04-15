@@ -32,6 +32,7 @@ public class FluxSecurityConfig {
     @Autowired
     FunpayAuthorizeExchangeSpecCustomizer funpayAuthorizeExchangeSpecCustomizer;
 
+
     public static final String[] AUTH_WHITELIST = new String[]{"/login", "/logout"};
 
     @Bean

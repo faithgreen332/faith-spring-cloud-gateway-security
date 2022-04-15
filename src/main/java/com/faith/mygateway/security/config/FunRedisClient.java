@@ -31,6 +31,11 @@ public class FunRedisClient {
         log.debug("Redis:set cache key={},value={}", key, value);
     }
 
+    public void setWithExpire(String key, String value, Long expire, TimeUnit unit) {
+        template.opsForValue().set(key, value, expire, unit);
+        log.debug("Redis:setWithExpire cache key={},value={},expire={},unit={}", key, value, expire, unit);
+    }
+
     /**
      * hash 缓存
      *

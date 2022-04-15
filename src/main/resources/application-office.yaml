@@ -53,7 +53,7 @@ spring:
         - id: demo
           uri: lb://faithservice
           predicates:
-            - Path=/gateway/demo
+            - Path=/gateway/demo/{id}
           #            - Method=POST
           filters:
             # 限流 -----------------
@@ -112,3 +112,7 @@ token:
   header-name: access_token
   secret: J8H46h7W7ezlOMEvVFeuz7NR04O0XKUC
   expire-min: 20
+same:
+  get-request:
+    submit:
+      window-sec: 15

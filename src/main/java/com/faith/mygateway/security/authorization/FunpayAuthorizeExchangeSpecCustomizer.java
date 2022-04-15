@@ -16,6 +16,6 @@ public class FunpayAuthorizeExchangeSpecCustomizer implements Customizer<ServerH
     public void customize(ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec) {
         authorizeExchangeSpec.pathMatchers("/login", "/logout").permitAll();
         authorizeExchangeSpec.pathMatchers("/demo").hasAnyRole("aadmin");
-        authorizeExchangeSpec.anyExchange().hasAnyRole("developerr");
+        authorizeExchangeSpec.anyExchange().hasAnyRole("developer");
     }
 }
