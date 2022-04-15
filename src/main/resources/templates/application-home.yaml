@@ -1,0 +1,10 @@
+# 应用名称
+spring:
+  datasource:
+    username: root
+    password: faith332
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.228.133:3306/test?severTimezone=UTC&useSSL=false
+
+
+

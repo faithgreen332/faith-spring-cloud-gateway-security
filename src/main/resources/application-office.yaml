@@ -1,0 +1,114 @@
+spring:
+  datasource:
+    username: root
+    password: faith332
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://node3:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+  redis:
+    timeout: 30000
+    cluster:
+      nodes: 192.168.187.134:7001,192.168.187.134:7002,192.168.187.135:7001,192.168.187.135:7002,192.168.187.136:7001,192.168.187.136:7002
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: -1
+    password: faith
+  cloud:
+    gateway:
+      httpclient:
+        # 默认是 45s,改成 600s，超时会降级，必须指定为 java.time.Duration
+        response-timeout: 600s
+        # 必须以毫秒为单位指定连接超时时间.
+        connect-timeout: 6000
+      routes:
+        - id: xxoo
+          uri: lb://faithservice
+          predicates:
+            - Path=/gateway/car
+          #            - Method=POST
+          filters:
+            # 限流 -----------------
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@carKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 20
+            # 限流 -----------------
+            # 降级 -----------------
+            - name: Hystrix
+              args:
+                name: carPost # 这个 name 是 62 行的值
+                fallbackUri: forward:/car/fallback
+            # 降级 -----------------
+            # 熔断 -----------------
+            - name: CircuitBreaker
+              args:
+                name: carPost
+                fallbackUri: forward:/car/breaker/fallback
+                statusCodes: INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+            # 熔断 -----------------
+        - id: demo
+          uri: lb://faithservice
+          predicates:
+            - Path=/gateway/demo
+          #            - Method=POST
+          filters:
+            # 限流 -----------------
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@carKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 20
+            # 限流 -----------------
+            # 降级 -----------------
+            - name: Hystrix
+              args:
+                name: carPost # 这个 name 是 62 行的值
+                fallbackUri: forward:/car/fallback
+            # 降级 -----------------
+            # 熔断 -----------------
+            - name: CircuitBreaker
+              args:
+                name: carPost
+                fallbackUri: forward:/car/breaker/fallback
+                statusCodes: INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+            # 熔断 -----------------
+      # 配置了才能用 lb，会自动从 nacos 上拉取服务 instance 列表
+      discovery:
+        locator:
+          enabled: true
+    #不配置这个的话 lb 找不到服务，没看源码，强行理解为：这个 nacos 是 gateway 的 discovery.locator.enabled 自动去注册中心拉取服务的地址，加载时机不一样，不是 gateway 服务去注册的地址，gateway 去注册的地址在 bootstrap.yaml 里
+    nacos:
+      discovery:
+        server-addr: 192.168.187.135:8848
+        group: faithservice
+        namespace: dev
+hystrix:
+  command:
+    carPost:
+      execution:
+        #        timeout:
+        #          enabled: true # 是否应该有超时
+        isolation:
+          strategy: THREAD # 线程级别的隔离策略
+          thread:
+            timeoutInMilliseconds: 3000 #服务调用超时时间,THREAD 隔离模式下是请求超时是会取消调用线程从而立即返回的，SEMAPHORE模式下会等待响应回来再判断是否超时。
+            interruptOnTimeout: true   #执行超时的时候，是否需要将他中断
+            interruptOnCancel: true  #是否在方法执行被取消时中断方法
+
+      circuitBreaker:
+        # 每当 20 个请求中，有 50% 失败时，熔断器就会打开，此时再调用此服务，将会直接返回失败，不再调远程服务。
+        # 直到 5s 钟之后，重新检测该触发条件，判断是否吧熔断器关闭，或者继续打开。达到熔断之后，那么后面它就直接不去调该微服务
+        # 换句话说，一旦熔断了，5s 内所有的调用都直接熔断，5s 之后的调用会放行（这就是版熔断状态），只到达到 20 个调用有 50% 失败的条件，再次熔断
+        errorThresholdPercentage: 50 # 错误率 50%
+        requestVolumeThreshold: 20 # 滑动窗口的大小，默认 20
+        sleepWindowInMilliseconds: 5000 # 超过多长时间，熔断器再次检测是否开启，默认 5s
+
+token:
+  header-name: access_token
+  secret: J8H46h7W7ezlOMEvVFeuz7NR04O0XKUC
+  expire-min: 20

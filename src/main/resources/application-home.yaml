@@ -1,0 +1,33 @@
+# 应用名称
+spring:
+  datasource:
+    username: root
+    password: faith332
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.228.133:3306/test?severTimezone=UTC&useSSL=false
+  cloud:
+    gateway:
+      routes:
+
+#        - id: xxooroute
+#          uri: http://xxoo.com
+#          predicates:
+#            - Path=/gateway/** # 通过 path 匹配：注意这个 path 会被拼接到转发后的uri后头
+#            - Query=id,. # 通过 url 参数匹配：要求 url 有 id 参数（. 代表正则表达式的任意一个字符）
+#            - Method=post # 通过 method 匹配，只匹配 post 请求
+#            - Host=faith.com # 通过主机名匹配
+#          filters:
+#            - StripPrefix=1 # 所以要用这个 filter 来过滤掉，数字就是过滤掉几级
+        # 配合 locator.enabled=true 使用
+        - id: xxoo
+          uri: lb://eureka中心服务名
+          predicates:
+            - Path=/前端的的url
+            - StripPrefix=1
+
+      discovery:
+        locator:
+          enabled: true # 会从 eureka 所有服务，并自己映射 routes，访问的方法就是注册到注册中心的名字
+
+
+

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    username: root
+    password: faith332
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://node3:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+
+
+

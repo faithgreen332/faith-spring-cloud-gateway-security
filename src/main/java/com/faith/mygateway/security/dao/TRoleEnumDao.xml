@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.faith.mygateway.security.dao.TRoleEnumDao">
+    <resultMap id="BaseResultMap" type="com.faith.mygateway.security.dto.TRoleEnum">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="rid" jdbcType="BIGINT" property="rid"/>
+        <result column="eid" jdbcType="BIGINT" property="eid"/>
+        <result column="enabled_flag" jdbcType="TINYINT" property="enabledFlag"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, rid, eid, enabled_flag
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_role_enum
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_role_enum
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.faith.mygateway.security.dto.TRoleEnum"
+            useGeneratedKeys="true">
+        insert into t_role_enum (rid, eid, enabled_flag)
+        values (#{rid,jdbcType=BIGINT}, #{eid,jdbcType=BIGINT}, #{enabledFlag,jdbcType=TINYINT})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.faith.mygateway.security.dto.TRoleEnum"
+            useGeneratedKeys="true">
+        insert into t_role_enum
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rid != null">
+                rid,
+            </if>
+            <if test="eid != null">
+                eid,
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rid != null">
+                #{rid,jdbcType=BIGINT},
+            </if>
+            <if test="eid != null">
+                #{eid,jdbcType=BIGINT},
+            </if>
+            <if test="enabledFlag != null">
+                #{enabledFlag,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.faith.mygateway.security.dto.TRoleEnum">
+        update t_role_enum
+        <set>
+            <if test="rid != null">
+                rid = #{rid,jdbcType=BIGINT},
+            </if>
+            <if test="eid != null">
+                eid = #{eid,jdbcType=BIGINT},
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag = #{enabledFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.faith.mygateway.security.dto.TRoleEnum">
+        update t_role_enum
+        set rid          = #{rid,jdbcType=BIGINT},
+            eid          = #{eid,jdbcType=BIGINT},
+            enabled_flag = #{enabledFlag,jdbcType=TINYINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

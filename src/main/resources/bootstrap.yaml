@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.187.135:8848
+        group: gateway
+        file-extension: yaml
+        #需要的时候再配置
+        #        shared-configs[0]:
+        #          data-id: common.yaml
+        namespace: dev
+
+      #服务发现与注册中心
+      discovery:
+        server-addr: 192.168.187.135:8848
+        group: gateway
+        namespace: dev

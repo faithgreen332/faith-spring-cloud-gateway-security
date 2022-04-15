@@ -1,0 +1,11 @@
+# 应用名称
+spring:
+  application:
+    name: mygateway
+  profiles:
+    active: office
+server:
+  port: 8880
+#logging:
+#  level:
+#    ROOT: DEBUG

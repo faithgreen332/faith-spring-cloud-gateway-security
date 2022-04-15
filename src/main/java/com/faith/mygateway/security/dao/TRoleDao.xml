@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.faith.mygateway.security.dao.TRoleDao">
+    <resultMap id="BaseResultMap" type="com.faith.mygateway.security.dto.TRole">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="enabled_flag" jdbcType="BOOLEAN" property="enabledFlag"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, role_name, description, enabled_flag
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_role
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_role
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.faith.mygateway.security.dto.TRole"
+            useGeneratedKeys="true">
+        insert into t_role (role_name, description, enabled_flag)
+        values (#{roleName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{enabledFlag,jdbcType=BOOLEAN})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.faith.mygateway.security.dto.TRole" useGeneratedKeys="true">
+        insert into t_role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="roleName != null">
+                role_name,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="roleName != null">
+                #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="enabledFlag != null">
+                #{enabledFlag,jdbcType=BOOLEAN},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.faith.mygateway.security.dto.TRole">
+        update t_role
+        <set>
+            <if test="roleName != null">
+                role_name = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag = #{enabledFlag,jdbcType=BOOLEAN},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.faith.mygateway.security.dto.TRole">
+        update t_role
+        set role_name    = #{roleName,jdbcType=VARCHAR},
+            description  = #{description,jdbcType=VARCHAR},
+            enabled_flag = #{enabledFlag,jdbcType=BOOLEAN}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.faith.mygateway.security.dao.TUserDao">
+    <resultMap id="BaseResultMap" type="com.faith.mygateway.security.dto.TUser">
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="account_expired_flag" jdbcType="BOOLEAN" property="accountExpiredFlag"/>
+        <result column="account_lock_flag" jdbcType="BOOLEAN" property="accountLockFlag"/>
+        <result column="credential_expired_flag" jdbcType="BOOLEAN" property="credentialExpiredFlag"/>
+        <result column="enabled_flag" jdbcType="BOOLEAN" property="enabledFlag"/>
+        <collection property="roles" ofType="com.faith.mygateway.security.dto.TRole">
+            <id column="rid" property="id"/>
+            <result property="roleName" column="role_name"/>
+            <result property="description" column="role_description"/>
+        </collection>
+        <collection property="authorities" ofType="com.faith.mygateway.security.dto.TEnum">
+            <result property="enumName" column="enum_name"/>
+            <result property="enumDescription" column="enum_description"/>
+            <result property="requestMethod" column="request_method"/>
+            <result property="url" column="url"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_name, `password`, description, account_expired_flag, account_lock_flag,
+    credential_expired_flag, enabled_flag
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_user
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        select u.user_name        as user_name,
+               u.password         as password,
+               r.role_name        as role_name,
+               r.description      as role_description,
+               e.enum_name        as enum_name,
+               e.enum_description as enum_description,
+               e.url              as url,
+               e.request_method   as request_method
+        from t_user u
+                 left join t_user_role ur
+                           on u.id = ur.uid
+                               and ur.enabled_flag = 1
+                 left join t_role r
+                           on r.id = ur.rid
+                               and r.enabled_flag = 1
+                 left join t_role_enum re
+                           on re.rid = r.id
+                               and re.enabled_flag = 1
+                 left join t_enum e
+                           on e.id = re.eid
+                               and e.enabled_flag = 1
+        where u.user_name = #{userName,jdbcType=VARCHAR}
+          and u.account_expired_flag = 0
+          and u.account_lock_flag = 0
+          and u.credential_expired_flag = 0
+          and u.enabled_flag = 1
+
+
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from t_user
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.faith.mygateway.security.dto.TUser"
+            useGeneratedKeys="true">
+        insert into t_user (user_name, `password`, description,
+                            account_expired_flag, account_lock_flag, credential_expired_flag,
+                            enabled_flag)
+        values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+                #{accountExpiredFlag,jdbcType=BOOLEAN}, #{accountLockFlag,jdbcType=BOOLEAN},
+                #{credentialExpiredFlag,jdbcType=BOOLEAN},
+                #{enabledFlag,jdbcType=BOOLEAN})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.faith.mygateway.security.dto.TUser"
+            useGeneratedKeys="true">
+        insert into t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="password != null">
+                `password`,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="accountExpiredFlag != null">
+                account_expired_flag,
+            </if>
+            <if test="accountLockFlag != null">
+                account_lock_flag,
+            </if>
+            <if test="credentialExpiredFlag != null">
+                credential_expired_flag,
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="accountExpiredFlag != null">
+                #{accountExpiredFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="accountLockFlag != null">
+                #{accountLockFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="credentialExpiredFlag != null">
+                #{credentialExpiredFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="enabledFlag != null">
+                #{enabledFlag,jdbcType=BOOLEAN},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.faith.mygateway.security.dto.TUser">
+        update t_user
+        <set>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                `password` = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="accountExpiredFlag != null">
+                account_expired_flag = #{accountExpiredFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="accountLockFlag != null">
+                account_lock_flag = #{accountLockFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="credentialExpiredFlag != null">
+                credential_expired_flag = #{credentialExpiredFlag,jdbcType=BOOLEAN},
+            </if>
+            <if test="enabledFlag != null">
+                enabled_flag = #{enabledFlag,jdbcType=BOOLEAN},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.faith.mygateway.security.dto.TUser">
+        update t_user
+        set user_name               = #{userName,jdbcType=VARCHAR},
+            `password`              = #{password,jdbcType=VARCHAR},
+            description             = #{description,jdbcType=VARCHAR},
+            account_expired_flag    = #{accountExpiredFlag,jdbcType=BOOLEAN},
+            account_lock_flag       = #{accountLockFlag,jdbcType=BOOLEAN},
+            credential_expired_flag = #{credentialExpiredFlag,jdbcType=BOOLEAN},
+            enabled_flag            = #{enabledFlag,jdbcType=BOOLEAN}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>
