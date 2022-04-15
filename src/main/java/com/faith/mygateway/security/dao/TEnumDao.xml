@@ -19,6 +19,10 @@
         from t_enum
         where id = #{id,jdbcType=BIGINT}
     </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select *
+        from t_enum;
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete
         from t_enum

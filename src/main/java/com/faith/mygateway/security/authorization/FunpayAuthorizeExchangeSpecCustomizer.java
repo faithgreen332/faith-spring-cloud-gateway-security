@@ -1,12 +1,19 @@
 package com.faith.mygateway.security.authorization;
 
+import com.faith.mygateway.security.dao.TEnumDao;
+import com.faith.mygateway.security.dto.TEnum;
+import com.faith.mygateway.security.utils.TokenAuthenticationUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
- * 握翘啊，这里是启动的时候就配置好了，不能动态配啊，想先登录，拿到用户的权限，然后动态配置规则，妈的这里做不到啊，要先搞这里，才到登录
+ * 屌爆了，思想是这样的，预先把所有的权限配置好,等登录的用户用他自己的权限来匹配就行了
+ * 权限的校验规则：方法名 + url 有 ”url_方法名“ 这样的权限，就通过，否则不通过
  *
  * @author Leeko
  * @date 2022/4/12
@@ -15,24 +22,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class FunpayAuthorizeExchangeSpecCustomizer implements Customizer<ServerHttpSecurity.AuthorizeExchangeSpec> {
 
+    @Autowired
+    TEnumDao enumDao;
+
     @Override
     public void customize(ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec) {
-//        ReactiveSecurityContextHolder.getContext().flatMap(securityContext -> {
-//            Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
-//            Iterator<? extends GrantedAuthority> iterator = authorities.stream().iterator();
-//            GrantedAuthority next;
-//            while (iterator.hasNext()) {
-//                next = iterator.next();
-//                System.out.println("aaaaa " + next.getAuthority());
-//                String[] authorityPare = next.getAuthority().split("_");
-//                // authority 是 url_请求方法 的形式给的，所以，照模样取出来
-//                authorizeExchangeSpec.pathMatchers(authorityPare[1], authorityPare[0]).permitAll();
-//            }
-//            return null;
-//        });
+        List<TEnum> tEnums = enumDao.selectAll();
         authorizeExchangeSpec.pathMatchers("/login", "/logout").permitAll();
-//        authorizeExchangeSpec.pathMatchers("/demo").hasAnyRole("aadmin");
-        authorizeExchangeSpec.pathMatchers("GET", "/gateway/demo").permitAll();
-//        authorizeExchangeSpec.anyExchange().hasAnyRole("developer");
+        tEnums.forEach(tEnum -> {
+            String method, url;
+            authorizeExchangeSpec.pathMatchers(method = tEnum.getRequestMethod().toString(), url = tEnum.getUrl()).hasAuthority(TokenAuthenticationUtil.constructAuthority(url, method));
+        });
     }
 }

@@ -35,10 +35,7 @@ public class TokenAuthenticationUtil {
         List<TEnum> authorities = tUser.getAuthorities() == null ? Lists.newArrayList() : tUser.getAuthorities();
 
         List<String> authorityList = new ArrayList<>(authorities.size());
-        authorities.stream().forEach(tEnum -> {
-            authorityList.add(tEnum.getUrl() + "_" + tEnum.getRequestMethod());
-        });
-//        List<String> authorityList = authorities.stream().map(TEnum::getUrl).collect(Collectors.toList());
+        authorities.forEach(tEnum -> authorityList.add(TokenAuthenticationUtil.constructAuthority(tEnum.getUrl(), tEnum.getRequestMethod())));
 
         StringBuilder sf = new StringBuilder();
         for (String role : roleList) {
@@ -49,6 +46,10 @@ public class TokenAuthenticationUtil {
         }
 
         return StringUtils.isEmpty(sf.toString()) ? Strings.nullToEmpty(null) : sf.substring(0, sf.toString().length() - 1);
+    }
+
+    public static String constructAuthority(String url, Object method) {
+        return url + "_" + method;
     }
 
 }
