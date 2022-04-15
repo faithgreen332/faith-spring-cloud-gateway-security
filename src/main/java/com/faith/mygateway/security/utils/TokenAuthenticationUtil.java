@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,12 @@ public class TokenAuthenticationUtil {
         List<TRole> roles = tUser.getRoles() == null ? Lists.newArrayList() : tUser.getRoles();
         List<String> roleList = roles.stream().map(TRole::getRoleName).collect(Collectors.toList());
         List<TEnum> authorities = tUser.getAuthorities() == null ? Lists.newArrayList() : tUser.getAuthorities();
-        List<String> authorityList = authorities.stream().map(TEnum::getEnumName).collect(Collectors.toList());
+
+        List<String> authorityList = new ArrayList<>(authorities.size());
+        authorities.stream().forEach(tEnum -> {
+            authorityList.add(tEnum.getUrl() + "_" + tEnum.getRequestMethod());
+        });
+//        List<String> authorityList = authorities.stream().map(TEnum::getUrl).collect(Collectors.toList());
 
         StringBuilder sf = new StringBuilder();
         for (String role : roleList) {

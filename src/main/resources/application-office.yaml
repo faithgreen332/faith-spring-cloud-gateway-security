@@ -53,6 +53,33 @@ spring:
         - id: demo
           uri: lb://faithservice
           predicates:
+            - Path=/gateway/demo
+          #            - Method=POST
+          filters:
+            # 限流 -----------------
+            - StripPrefix=1
+            - name: RequestRateLimiter
+              args:
+                key-resolver: '#{@carKeyResolver}'
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 20
+            # 限流 -----------------
+            # 降级 -----------------
+            - name: Hystrix
+              args:
+                name: carPost # 这个 name 是 62 行的值
+                fallbackUri: forward:/car/fallback
+            # 降级 -----------------
+            # 熔断 -----------------
+            - name: CircuitBreaker
+              args:
+                name: carPost
+                fallbackUri: forward:/car/breaker/fallback
+                statusCodes: INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+            # 熔断 -----------------
+        - id: demo1
+          uri: lb://faithservice
+          predicates:
             - Path=/gateway/demo/{id}
           #            - Method=POST
           filters:
