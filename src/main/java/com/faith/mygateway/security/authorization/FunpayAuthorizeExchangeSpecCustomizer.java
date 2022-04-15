@@ -19,7 +19,6 @@ import java.util.List;
  * @date 2022/4/12
  **/
 @Component
-@Slf4j
 public class FunpayAuthorizeExchangeSpecCustomizer implements Customizer<ServerHttpSecurity.AuthorizeExchangeSpec> {
 
     @Autowired
