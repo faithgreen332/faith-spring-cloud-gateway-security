@@ -1,5 +1,6 @@
 package com.faith.mygateway.filter;
 
+import com.alibaba.fastjson.JSON;
 import com.faith.mygateway.security.config.FunRedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,16 +10,19 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 相同的用户，get 请求在 15 秒内只能提交一次，防止人家狂点
+ * 相同的用户，相同的 get 请求在 15 秒内只能提交一次，防止人家狂点
  *
  * @author Leeko
  * @date 2022/4/15
@@ -50,10 +54,26 @@ public class RepeatSubmitGatewayFilterFactory implements GlobalFilter, Ordered {
         if (redisClient.exists(key)) {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.OK);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> result = new HashMap<String, String>() {{
+                put("code", "20001");
+                put("msg", "您操作太频繁了，请 " + windowSecs + " 秒后再试！");
+            }};
+//            return response.writeWith(Flux.create(sink -> {
+//                NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(new UnpooledByteBufAllocator(false));
+//                DataBuffer dataBuffer = null;
+//                try {
+//                    dataBuffer = nettyDataBufferFactory.wrap(JSON.toJSONString(result).getBytes("utf8"));
+//                    sink.next(dataBuffer);
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+//                sink.complete();
+//            }));
             return response.writeWith(Mono.fromSupplier(() -> {
                 DataBufferFactory dataBufferFactory = response.bufferFactory();
-                // TODO 当然不能这么生硬的给字符串，这么搞的话前端的小伙伴要杀人了，需要包装成对象的
-                return dataBufferFactory.wrap("您操作太频繁了，请 15 秒后再试".getBytes(StandardCharsets.UTF_8));
+                return dataBufferFactory.wrap(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
             }));
         } else {
             // 没有的话就记录一个
