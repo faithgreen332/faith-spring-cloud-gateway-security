@@ -3,7 +3,6 @@ package com.faith.mygateway.security.authorization;
 import com.faith.mygateway.security.dao.TEnumDao;
 import com.faith.mygateway.security.dto.TEnum;
 import com.faith.mygateway.security.utils.TokenAuthenticationUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -27,7 +26,7 @@ public class FunpayAuthorizeExchangeSpecCustomizer implements Customizer<ServerH
     @Override
     public void customize(ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec) {
         List<TEnum> tEnums = enumDao.selectAll();
-        authorizeExchangeSpec.pathMatchers("/login", "/logout").permitAll();
+        authorizeExchangeSpec.pathMatchers("/login", "/logout", "/favicon.ico", "/actuator/**").permitAll();
         tEnums.forEach(tEnum -> {
             String method, url;
             authorizeExchangeSpec.pathMatchers(method = tEnum.getRequestMethod().toString(), url = tEnum.getUrl()).hasAuthority(TokenAuthenticationUtil.constructAuthority(url, method));

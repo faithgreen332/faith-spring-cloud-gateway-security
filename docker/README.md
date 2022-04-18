@@ -1,0 +1,5 @@
+- linux 系统 centos7
+- 本例工作目录为：/usr/local/app/gateway
+- 工作目录下有文件：Dockerfile，jdk-8u311-linux-x64.tar.gz，mygateway-1-SNAPSHOT.jar，run.sh，有文件夹 log
+- docker 容器没有使用桥接网络，我不会配置，用的主机网络，一样使用，区别是占用了主机的端口了而已，安全性差点，这都不是重点，不重要。
+- 只要以上文件准备好，直接 cd 到工作目录下，./run.sh 就能起来应用，然后到 log 文件夹下看日志有没有正确启动。

@@ -108,6 +108,8 @@ spring:
       discovery:
         locator:
           enabled: true
+      metrics:
+        enabled: true # 启用 metrics
     #不配置这个的话 lb 找不到服务，没看源码，强行理解为：这个 nacos 是 gateway 的 discovery.locator.enabled 自动去注册中心拉取服务的地址，加载时机不一样，不是 gateway 服务去注册的地址，gateway 去注册的地址在 bootstrap.yaml 里
     nacos:
       discovery:
@@ -143,3 +145,18 @@ same:
   get-request:
     submit:
       window-sec: 15
+management:
+  metrics:
+    tags:
+      # 应用名称添加到计量器注册表的 tag 中
+      application: ${spring.application.name}
+  endpoint:
+    health:
+      # 是否显示 health 的详细信息，是
+      show-details: always
+      show-components: always
+  endpoints:
+    web:
+      exposure:
+        # 开放的 id 集合，（eg['health','info','beans','env']），配置为 ’*‘ 表示全部
+        include: '*'
